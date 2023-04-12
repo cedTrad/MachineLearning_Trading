@@ -2,7 +2,7 @@ import pandas as pd
 from sklearn.preprocessing import FunctionTransformer
 from sklearn.model_selection import ParameterGrid
 
-from sklearn.pipeline import Pipeline, FeatureUnion
+from sklearn.pipeline import Pipeline, FeatureUnion, make_pipeline
 
 
 def param_grid(params):
@@ -14,17 +14,16 @@ def sin_transformer(period):
 def cos_transformer(period):
     return FunctionTransformer(lambda x : np.cos(x / period*2*np.pi))
 
-def crossover(funct):
-    return FunctionTransformer(funct)
-
-
 
 class MakeIndicator:
     
     def __init__(self, data):
         self.data = data.copy()
-        self.names = []
-        self.steps = []
+        self.names = ['open', 'high', 'low', 'close', 'volume', 'target']
+        self.index = data.index
+        self.steps = [("ohlcv", FunctionTransformer(lambda x : x[['open', 'high', 'low', 'close', 'volume', 'target']]))]
+        #self.steps = []
+    
     
     def one_params(self, data, params, funct):
         df = pd.DataFrame()
@@ -40,6 +39,7 @@ class MakeIndicator:
     
     def param_grid(self, params):
         return list(ParameterGrid(params))
+    
     
     def add_colname(self, funct, params):
         for i, param in enumerate(params):
@@ -57,33 +57,37 @@ class MakeIndicator:
         self.add_colname(funct, params)
         transformer = FunctionTransformer(self.one_params, kw_args = {"params" : params, "funct" : funct})
         self.add_transformer(name = funct.__name__, transformer = transformer)
-        return transformer
+        #return transformer
         
     def set_mtransformer(self, funct, params):
         params = self.param_grid(params)
         self.add_colname(funct, params)
         transformer = FunctionTransformer(self.multi_params, kw_args = {"params_grid" : params, "funct" : funct})
         self.add_transformer(name = funct.__name__, transformer = transformer)
-        return transformer
+        #return transformer
     
-    def dropna_transformer(self):
-        return FunctionTransformer(lambda x : pd.DataFrame(x, columns = self.names).dropna())
     
     def add_transformer(self, name, transformer):
         step = (name, transformer)
         self.steps.append(step)
     
-    def pipeline(self):
-        dropna = self.dropna_transformer()
-        
+    
+    def makeUnion(self):
         union = FeatureUnion(
             self.steps
         )
-        pipe = Pipeline(
-            [
-                ("indicator", union),
-                ("dropna",  dropna)
-            ]
-        )
-        return pipe
+        return union
+    
+    
+    def df(self):
+        union = self.makeUnion()
+        
+        data = union.fit_transform(self.data)
+        data = pd.DataFrame(data, columns = self.names, index = self.index)
+        self.na_count = data.isna().sum().max()
+        
+        data.dropna(inplace = True)
+        
+        return data
+    
 

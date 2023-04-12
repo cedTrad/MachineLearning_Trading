@@ -14,6 +14,12 @@ def ema(data, period):
     return ema.ema_indicator()
 
 
+def lag_returns(data, lag):
+    X = data.close.pct_change(lag)
+    X.name = f"ret_{lag}"
+    return X
+
+
 def rsi(data, period):
     RSI = ta.momentum.RSIIndicator(data.close, period)
     return RSI.rsi()
@@ -96,7 +102,7 @@ def sar(data, step = 0.2, max_step = 0.2):
     SAR.psar_up()       # up trend value
     SAR.psar_up_indicator() # up trend value indicator
     
-    return pd.concat([SAR.psar(), SAR.psar_up(), SAR.psar_down()], axis = 1)
+    return pd.concat([SAR.psar(), SAR.psar_up_indicator(), SAR.psar_down_indicator()], axis = 1)
 
 
 

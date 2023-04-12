@@ -2,11 +2,12 @@ import numpy as np
 import pandas as pd
 import itertools
 
+
 def get_classification_target(data):
     data = data.copy()
     data['returns'] = data["close"].pct_change()
     data['target'] = data['returns'].shift(-1)
-    data['target'] = np.where(data['returns'] > 0, 1, 0)
+    data['target'] = np.where(data['target'] > 0, 1, 0)
     return data['target']
 
 
@@ -43,5 +44,6 @@ def crossover_dist(df):
         data[name+'dist'] = (data[couple[i+1]] + data[couple[i]]) / data[couple[i]]
         
     return data.drop(columns = colnames)
+
 
 
