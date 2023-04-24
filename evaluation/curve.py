@@ -4,9 +4,9 @@ import pandas as pd
 from sklearn.model_selection import learning_curve
 import matplotlib.pyplot as plt
 
-def learningCurve(model, X, y, cv):
+def learningCurve(model, X, y, cv, score):
     N, train_score, val_score = learning_curve(model, X, y,
-                                           cv = cv,
+                                           cv = cv, scoring = score,
                                            train_sizes = np.linspace(0.1, 1, 10))
     
     train_scores_mean = train_score.mean(axis = 1)

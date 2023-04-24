@@ -79,7 +79,7 @@ class MakeIndicator:
         return union
     
     
-    def df(self):
+    def get_data(self):
         union = self.makeUnion()
         
         data = union.fit_transform(self.data)

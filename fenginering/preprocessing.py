@@ -46,24 +46,28 @@ class Crossover:
         transformer = self.set_stransformer(funct, params)
         self.add_colname(funct, params)
         
-        data = transformer.fit_transform(self.data)
+        data = transformer.fit_transform(self.data).copy()
+        data_ = {}
+        
         variable = list(itertools.combinations(self.names, 2))
         for couple in variable:
             name = ""
             i = 0
             name = couple[i]+"_" + couple[i+1]
-            data[name] = np.where(data[couple[i]] < data[couple[i+1]], 1, 0)
-            data[name+'dist'] = (data[couple[i+1]] + data[couple[i]]) / data[couple[i]]
+            data_[name] = np.where(data[couple[i]] < data[couple[i+1]], 1, 0)
+            data_[name+'dist'] = (data[couple[i+1]] + data[couple[i]]) / data[couple[i]]
         
         for col in self.names:
-            data[name+"_c"] = (data[couple[i]] + self.data['close']) / self.data['close']
-            
+            data_[name+"_c"] = (data[couple[i]] + self.data['close']) / self.data['close']
         
-        data.drop(columns = self.names, inplace = True)   
-        data.dropna(inplace = True)    
+        
+        data_ = pd.DataFrame(data_)
+        
+        #data.drop(columns = self.names, inplace = True)   
+        data_.dropna(inplace = True)    
         self.names = []
         
-        return data
+        return data_
     
     def macd(self):
         ""
@@ -75,7 +79,7 @@ def h_l(data):
     return X
 
 
-class Normalisation:
+class Scale:
     
     def __init__(self, data):
         self.data = data.copy()
