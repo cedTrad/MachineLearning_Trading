@@ -46,4 +46,6 @@ def crossover_dist(df):
     return data.drop(columns = colnames)
 
 
+def set_timeframe(data, base, interval):
+    data = data.groupeby(interval).last()
 

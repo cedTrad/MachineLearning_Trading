@@ -18,8 +18,7 @@ models = [
     ('RandomForestClassifier', RandomForestClassifier()),
     ('XGBClassifier', XGBClassifier()),
     #('GBM', GradientBoostingClassifier()),
-    #('HGBM', HistGradientBoostingClassifier())
-    #('MPL', MLPClassifier()),
+    #('HGBM', HistGradientBoostingClassifier()),
 ]
 
 
